@@ -31,10 +31,17 @@ class Record:
 
 
     def edit_phone(self, old_number: str, new_number: str):
-        """Редагує номер телефону в контакті."""
-        self.phones = [
-            Phone(new_number) if phone.value == old_number else phone for phone in self.phones
-        ]
+        found = False
+
+        for i, phone in enumerate(self.phones):
+            if phone.value == old_number:
+                self.phones[i] = Phone(new_number)
+                found = True
+                break
+        if not found:
+            raise KeyError(
+                "The specified number does not exist or the contact has no phone numbers."
+            )
 
 
     def find_phone(self, number: str):
@@ -42,10 +49,9 @@ class Record:
         for phone in self.phones:
             if phone.value == number:
                 return phone
-        return None
 
 
-    def add_birthday(self, birthday: str):
+    def add_birthday(self, birthday):
         """Додає день народження до контакту."""
         self.birthday = Birthday(birthday)
 

@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from address_book import AddressBook
 from record import Record
 
+not_found_message = "Contact does not exist, you can add it"
+
 
 def input_error(handler):
     """Декоратор для обробки помилок користувацького вводу."""
@@ -27,19 +29,21 @@ def add_contact(args, book: AddressBook):
     return message
 
 
-@input_error
 def change_phone(args, book: AddressBook):
     """Змінює номер телефону для конкретного контакту."""
-    name, old_phone, new_phone = args
+    if len(args) != 3:
+        return "Invalid number of arguments. Usage: change [name] [old_number] [new_number]"
+    name, old_number, new_number = args
     record = book.find(name)
     if record is None:
-        return f"No contact found with name '{name}'."
-    record.edit_phone(old_phone, new_phone)
-    return f"Phone number updated for {name}."
+        return not_found_message
+    else:
+        record.edit_phone(old_number, new_number)
+        return "Phone changed"
+
 
 @input_error
 def show_phones(args, book: AddressBook):
-    """Show all phone numbers for a specific contact."""
     """Показує всі телефонні номери для якогось конкретного контакту"""
     name = args[0]
     record = book.find(name)
@@ -47,6 +51,7 @@ def show_phones(args, book: AddressBook):
         return f"No contact found with name '{name}'."
     phones = "; ".join(phone.value for phone in record.phones)
     return f"{name}'s phone numbers: {phones}"
+
 
 @input_error
 def show_all_contacts(book: AddressBook):
@@ -61,12 +66,15 @@ def show_all_contacts(book: AddressBook):
 
 @input_error
 def add_birthday(args, book: AddressBook):
-    name, birthday = args
+    if len(args) != 2:
+        return "Invalid number of arguments. Usage: add-birthday [name] [date]"
+    name, date = args
     record = book.find(name)
-    if record is None:
-        return f"No contact found with name '{name}'."
-    record.add_birthday(birthday)
-    return f"Birthday added for {name}."
+    if record:
+        record.add_birthday(date)
+        return "Birthday added."
+    else:
+        return not_found_message
 
 
 @input_error
